@@ -1,0 +1,52 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx leaf cells in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity Debounce is
+Port (
+CLK_100MHz : in    STD_LOGIC;
+BTN_in       : in    STD_LOGIC;
+BTN_out       : out    STD_LOGIC
+);
+end Debounce;
+
+architecture Behavioral of Debounce is
+signal CLK50Hz : STD_LOGIC :='0';
+Signal OP1, OP2, OP3: std_logic:='0';
+
+begin
+
+--Chia CLK_divide debounce 50Hz
+FreqDiv1: process (CLK_100MHz)
+variable count1: integer range 0 to 2000000;
+begin
+if CLK_100MHz ='1' and CLK_100MHz'event then
+    count1 := count1+1;
+    if count1 = 2000000/2 then
+    CLK50Hz <= not CLK50Hz;
+    count1:=0;
+end if;
+end if;
+end process;
+
+
+process (BTN_in,CLK50Hz)
+begin
+if rising_edge(CLK50Hz) then
+OP1 <= BTN_in;
+OP2 <= OP1;
+OP3 <= OP2;
+end if;
+BTN_out <= OP1 and OP2 and OP3;
+end process;
+
+
+end Behavioral;
